@@ -2,6 +2,15 @@
 
 All notable changes to the `delivery-loop` plugin. Versions follow `version` in `plugins/delivery-loop/.claude-plugin/plugin.json`.
 
+## 0.2.0 - 2026-11-10
+
+Builds in the guidance from Anthropic's "Prompting Claude Fable 5.2".
+
+- `orchestrate`: a new section "Instructions and reports" (say who owns the code, finish the whole task, exact approvals with the exception inside the rule, pruning cautions that build up, keeping the owner informed, reports for a low-context reader, evidence instead of written-out reasoning); effort guidance under the model table; the gate reads the diff because a builder's summary leaves out small changes; what a subagent costs.
+- `builder`: ownership and finishing rules, and a report that lists every change.
+- Brief template: ownership and approval lines. Project profile: what needs the owner's word and what needs no approval.
+- The delta check marks the reviewed commit as seen; a pass with content drift gives invalid evidence.
+
 ## 0.1.0 - 2026-11-10
 
 First release.

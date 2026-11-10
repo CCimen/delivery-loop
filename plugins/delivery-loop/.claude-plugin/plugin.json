@@ -1,6 +1,6 @@
 {
   "name": "delivery-loop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Lead multi-delivery software work: a leader briefs builders, runs reviewers on a frozen SHA, judges every finding, and keeps the queue on a durable board.",
   "author": {
     "name": "Delivery loop maintainers"

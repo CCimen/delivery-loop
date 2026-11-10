@@ -22,6 +22,8 @@ Defaults; the project profile may change any of them.
 | Simple lookups | Haiku | Find a file, list, count. |
 | Second opinion | Codex, for example `gpt-6.1-sol` and `gpt-6-astra` | Independent model, own session. |
 
+Effort: `high` is the starting point for builders and reviewers; most of the gain is already there. Use `xhigh` only where a measured gain justifies the tokens, and `max` almost never. Routine leader turns and scripted subagents run lower. Effort changes thinking, time and tool calls, not the length of a reply.
+
 ## 2. Advisor
 - The owner turns it on with `/advisor fable` (saved as `advisorModel`); Fable needs a recent Claude Code and consent to usage credits through `/model fable`. The leader cannot turn it on. With no advisor tool in the session, say so and let the two Codex reviewers carry the second opinion.
 - The advisor reads the whole conversation on every call, without cache. So: short leader sessions, evidence in before the question, few calls.
@@ -46,9 +48,9 @@ The conversation is not the project's memory. Each kind of fact has one owner, a
 The **work card** is the board item's notes, overwritten at every boundary (format in `delivery-board`). Start a session with the status file and the board's session-start routine, then the real state on the forge, before doing anything. Switch leader sessions when a wave has landed or the context has grown; write the cards first.
 
 ## 4. A delivery, step by step
-1. **Brief.** The leader writes the brief from the plan. A delivery that still has a design choice gets a plan pass with both Codex reviewers before the brief is frozen. A delivery whose design the plan review already covered gets no plan pass.
+1. **Brief.** The leader writes the brief from the plan. A delivery that still has a design choice gets a plan pass with both Codex reviewers before the brief is frozen. A delivery whose design the plan review already covered gets no plan pass. The brief says who owns the code, which steps need no approval and what needs the leader's word (section 7; template in `review-gate`).
 2. **Build.** A small fix in an open PR: the `builder` subagent in that PR's worktree. A delivery: a builder session in its own worktree under the builder rules (for example `claude --agent delivery-loop:builder`). Test first. The builder runs no Codex passes; it does its own stack check and writes the report. Large deliveries with many touch points start with a short implementation plan that the leader approves.
-3. **Gate, before push.** Cheap checks first: changed files against the brief's list, a single migration head, the report's tests. Then, in one message and on the same frozen SHA: the lenses at the depth the review protocol sets, and both Codex reviewers in `commit-gate`. Nobody changes the worktree during the passes.
+3. **Gate, before push.** Cheap checks first: changed files against the brief's list, a single migration head, the report's tests. Then, in one message and on the same frozen SHA: the lenses at the depth the review protocol sets, and both Codex reviewers in `commit-gate`. Nobody changes the worktree during the passes. A builder's report is not the diff: summaries leave out small changes, so a lens always reads the diff, and a changed file outside the brief's list or a behaviour change the brief did not ask for is a finding.
 4. **Verdicts.** Every finding goes to `finding-verifier`, except nits outside the changed lines, which do not block. The leader writes a verdict per finding ID: true, rejected with reason, follow-up on the board, or owner question. A reviewer that failed or timed out stands as "not covered" in the receipt and never counts as green.
 5. **Fix round.** All true findings in one message to the same builder, which has the context. Every new SHA, also after findings from the bot or CI, is re-validated on the delta (`review-gate`). Two rounds that produce new findings about the previous fix: cut the delivery smaller.
 6. **Push, CI, bot.** The leader pushes, opens the PR and requests the review bot the way the profile says. CI therefore runs only on reviewed code. Findings from the bot or CI go back to step 5.
@@ -71,15 +73,24 @@ The **work card** is the board item's notes, overwritten at every boundary (form
 - If the project's guard asks the owner before every direct push, that is the owner's setting.
 - The integration branch goes into the mainline only at the point the plan names.
 
-## 7. Token rules
+## 7. Instructions and reports
+- **Ownership.** Every brief says who owns the code. Where the delivery should leave its area cleaner, the brief carries this sentence, bounded to the area it names: "This codebase is yours: what it's for and how it's built are your call, and you'll keep building on it." Where the code is someone else's and should change as little as possible, leave the sentence out and say that instead. The sentence makes a builder merge repeated code and fix what it finds nearby; it also costs more output and brings changes nobody asked for, which is why the gate reads the diff.
+- **Finish the whole task.** A builder works through ordinary obstacles (errors, timeouts, locked files, empty results, failing tools): diagnose, wait and retry, fix the request, use another route. It stops only for a deliberate blocker (a file marked not to be touched, access withheld on purpose, a guard) or a decision that belongs to the leader or the owner, and then says plainly what it found.
+- **Approvals.** A rule names the exact actions that need the owner's word, with its scope and reason, and carries its own exception ("never X without the owner's go-ahead for that X"). The project profile also lists what needs no approval, for example retries of calls that are safe to repeat. A go-ahead says what to do ("Yes, fix F1 to F3 and write the report"), not "continue".
+- **Caution builds up.** When a wave has landed, prune what every session carries: delete notes, memories and rules whose reason no longer holds, and rewrite absolutes so they state scope and reason. Read what reviewer agents attach to their reports: a reviewer's "stop at the first error" is evidence for the leader, not a standing rule for the builder.
+- **Keeping the owner informed.** With a person watching, say in a line what you are about to do, give a one-line update every few tool calls, and close with a recap that stands on its own: what you found, what you did, what is next.
+- **Reports and handoffs.** Write for a reader who has not seen the tool calls or the files: key points first, plain words, full sentences, the same word for the same thing, and no label invented during the work without saying what it is.
+- **Evidence, not reasoning.** Never ask an agent to write out its reasoning in its answer; ask for evidence (file:line, command and result). A safety classifier can decline a benign security review; say so and run that review on another model.
+
+## 8. Token rules
 1. Context lives in files and on the board. The leader reads reports and verdict tables, not whole diffs, and reads source only for a blocker or a disputed finding.
 2. Every subagent gets a bounded brief, a fixed output format and the cheapest model that suffices.
 3. Collect all findings, then one fix round. A follow-up goes to the same agent or session, not to a new one that has to re-read.
 4. No plan pass where the plan already reviewed the design. Effort by difficulty, not by habit.
 5. Gate before push, and small fixes ride along in an open PR: every PR costs CI runs.
-6. Fan out only where the parts are independent. Do small things yourself.
+6. Fan out only where the parts are independent. Do small things yourself. A subagent is not free: it reads its context from scratch and can cost as much as a long leader turn, so know which model and effort each one runs on.
 
-## 8. Subagents (this plugin, named `delivery-loop:<name>`)
+## 9. Subagents (this plugin, named `delivery-loop:<name>`)
 | Agent | Model | Used for |
 |---|---|---|
 | `cartographer` | Sonnet | Map one area with file:line evidence. |
@@ -90,7 +101,7 @@ The **work card** is the board item's notes, overwritten at every boundary (form
 | `beads-reconciler` | Sonnet | Compare the board with code and PRs and propose `br` commands. |
 | `builder` | Opus | Build one bounded, written brief in its own worktree. |
 
-## 9. Mapping to Anthropic's agent patterns
+## 10. Mapping to Anthropic's agent patterns
 - Subagents (delegate, read the report, follow up in the same thread, one level deep) = the Agent tool and SendMessage.
 - Dynamic workflows (many agents in phases, cross-checking) = the Workflow tool. The gate fits: lenses, then verification per finding. Use it only when the owner explicitly asks for a workflow; otherwise run the same phases as parallel subagents.
 - Advisor (a stronger model at decisive points while the main agent does the work) = `/advisor`.
