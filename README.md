@@ -4,7 +4,7 @@ A Claude Code plugin for leading software work that runs as several deliveries a
 
 This repository is a plugin marketplace named `delivery-loop` with one plugin, also named `delivery-loop`.
 
-## What is in 0.1.0
+## What is in it
 
 | Skill | Use it for |
 |---|---|
@@ -12,6 +12,7 @@ This repository is a plugin marketplace named `delivery-loop` with one plugin, a
 | `/delivery-loop:review-gate` | Review depth by risk, finding verdicts, scope guard, stop rules, Codex pass rules, re-validation after every commit. Includes the brief, gate receipt, decision record and verdict table templates. |
 | `/delivery-loop:delivery-board` | The board convention on `br`: one item per delivery, labels, the work card, status rules, session start. |
 | `/delivery-loop:codex-peer-loop` | Run a read-only, resumable Codex review pass and interpret its receipt. |
+| `/delivery-loop:setup` | Check the tools on this machine and add the project profile to a project. Runs only when you ask for it. |
 
 | Agent | Use it for |
 |---|---|
@@ -25,23 +26,36 @@ This repository is a plugin marketplace named `delivery-loop` with one plugin, a
 
 Claude loads a skill when the task matches its description, or you run it by name. A builder session runs as the builder agent: `claude --agent delivery-loop:builder` in the delivery's worktree.
 
-## Not in 0.1.0
+## Not included
 - **Hooks and guards** (working hours, push rules, gate receipt enforcement). Plugin hooks fire in every project where the plugin is enabled, and these are project-specific. Planned for a later version as opt-in per project.
 - **The `br` tool and the Codex CLI.** Install them yourself.
 - **Any project's content**: plans, decisions, briefs, reports or board items.
 - **The `codex-implement-loop` skill** (Codex as the implementer).
 
 ## Requirements
-- Claude Code with plugin support.
-- `br` (beads_rust) on `PATH`, for the board.
-- The Codex CLI, signed in, for `codex-peer-loop` and the review gate's Codex passes.
-- Python 3.9 or later, for the Codex runner.
-- `git`, and your forge's CLI (for example `gh`) for reading PR and CI state.
-- Optional: the `/advisor` feature (the method works without it; say so in the session and let the Codex reviewers carry the second opinion).
+Only Claude Code and `git` are required. Everything else adds a part of the method, and `/delivery-loop:setup` tells you which parts you have.
+
+| Tool | Needed for | Without it |
+|---|---|---|
+| Claude Code with plugin support, `git` | Everything | – |
+| `br` (beads_rust) on `PATH` | The board (`delivery-board`) | The other skills work; the queue lives in the status file until `br` is installed. |
+| Codex CLI, signed in | The second-model review (`codex-peer-loop`, the gate's two reviewers) | Set "Codex reviewers: none" in the profile. The gate is then lenses and finding verification only, and the receipt says so. |
+| Python 3.9 or later | The Codex runner | No Codex passes. |
+| A forge CLI such as `gh` | Reading PR and CI state | The leader asks you for it. |
+| The `/advisor` feature | A stronger model at decision points | The method works without it. |
 
 ## Install
 
 You choose where to host the repository. Each person adds the marketplace once, then installs the plugin. Installing at user scope makes it available in the terminal, the desktop app's local sessions and VS Code on the same machine, since they read the same settings.
+
+**From GitHub:**
+
+```bash
+claude plugin marketplace add CCimen/delivery-loop
+claude plugin install delivery-loop@delivery-loop
+```
+
+In the desktop app: open the plugin browser, choose **Add marketplace**, enter `CCimen/delivery-loop` and select **Sync**, then install `delivery-loop`. Then run `/delivery-loop:setup` in the project you want to use it in.
 
 **From a local directory** (your own machine, or a clone):
 
@@ -70,9 +84,9 @@ Claude Code clones with the git credentials already on the machine and never pro
 **Try it without installing**: `claude --plugin-dir ./plugins/delivery-loop`.
 
 ## Adopt it in a project
-1. Copy the profile block from `plugins/delivery-loop/skills/orchestrate/project-profile.md` into the project's CLAUDE.md and fill it in: mainline and integration branch, how merges happen, working hours, the board command and labels, where briefs, reports, verdicts and receipts live, the heavy-step throttle, and reviewer models.
-2. Create the work directories the profile names, and the board's program and landing labels.
-3. Start a leader session and run `/delivery-loop:orchestrate`.
+Run `/delivery-loop:setup` in the project. It checks the tools on your machine, says what works without each, fills in the project profile from what the repository shows, asks you for the rest, and adds the profile to the project's CLAUDE.md when you agree. Then start a leader session with `/delivery-loop:orchestrate`.
+
+By hand: copy the profile block from `plugins/delivery-loop/skills/orchestrate/project-profile.md` into the project's CLAUDE.md, fill it in, and create the work directories it names. A small project needs only the mainline, how merges happen, and where the work files live.
 
 ## Where the Codex runner is
 The runner ships at `plugins/delivery-loop/skills/codex-peer-loop/scripts/codex_peer_loop.py`. The `codex-peer-loop` skill refers to it as `${CLAUDE_SKILL_DIR}/scripts/codex_peer_loop.py`, and the `review-gate` skill as `${CLAUDE_PLUGIN_ROOT}/skills/codex-peer-loop/scripts/codex_peer_loop.py`. Claude Code replaces both with the absolute path of the installed copy when the skill loads, so nothing depends on `~/.claude/skills`. To run it by hand, use the path in your clone. Session state lives in `~/.cache/codex-peer-loop/`, outside the plugin, so it survives plugin updates.
@@ -91,3 +105,7 @@ While the plugin is enabled, every skill and agent description is in context on 
 
 ## Cloud sessions
 Cloud sessions, including claude.ai/code, do not load plugins installed on your machine, nor ones that a repository's `.claude/settings.json` turns on. There, the plugin is available only if your organisation distributes it through managed settings.
+
+## License
+No license has been chosen yet. Until one is added, the usual default applies: you may read and install the plugin from this repository, but there is no grant to copy or redistribute it.
+

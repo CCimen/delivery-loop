@@ -15,7 +15,7 @@ Copy the block below into the project's CLAUDE.md and fill it in. The delivery-l
 - Integration delta check: `<command | git log <seen>..origin/<integration branch>>`.
 - Heavy-step throttle: `<command prefix> -- <command>`; at most <n> at once; exit codes that are not test results: <list | none>.
 - Migrations: <tool and the single-head check | none>.
-- Models: leader <opus>, advisor <fable>, builders and reviewers <opus>, mapping <sonnet>, lookups <haiku>. Codex reviewers: `<gpt-6.1-sol>` (responsibility, contracts, simplicity) and `<gpt-6-astra>` (failure paths, data, security, strongest alternative).
+- Models: leader <opus>, advisor <fable>, builders and reviewers <opus>, mapping <sonnet>, lookups <haiku>. Codex reviewers: `<gpt-6.1-sol>` (responsibility, contracts, simplicity) and `<gpt-6-astra>` (failure paths, data, security, strongest alternative), or `none` when the Codex CLI is not available (the gate is then lenses and verification only).
 - Public text (code, commits, PRs, comments, docs): never <internal decision numbers, board ids, customer names, internal plan words, reviewer model names>; no AI attribution.
 - Secrets: never read or print <files and variables>.
 ```

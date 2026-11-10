@@ -2,6 +2,14 @@
 
 All notable changes to the `delivery-loop` plugin. Versions follow `version` in `plugins/delivery-loop/.claude-plugin/plugin.json`.
 
+## 0.3.0 - 2026-11-10
+
+Easier to start with on a new machine and in a new project.
+
+- New skill `setup` (runs only when asked): checks `br`, the Codex CLI, Python, git and the project profile, says what works without each, and adds the profile to the project's CLAUDE.md.
+- The method now says what happens without the Codex CLI: "Codex reviewers: none" in the profile, a gate of lenses and verification, and a receipt that says so.
+- README: install from GitHub, requirements as a table with what each tool adds, adoption through `setup`.
+
 ## 0.2.0 - 2026-11-10
 
 Builds in the guidance from Anthropic's "Prompting Claude Fable 5.2".

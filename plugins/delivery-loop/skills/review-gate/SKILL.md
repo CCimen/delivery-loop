@@ -68,3 +68,6 @@ Every new SHA, also after findings from the review bot or CI, is tested on the d
 - Owner decisions go into the decision log; significant design choices use the [decision record](templates/decision-record.md).
 - Follow-ups go to the board, not into the PR.
 - Before merging, fill a [gate receipt](templates/gate-receipt.md) for the exact head. New commit, new receipt.
+
+## Without the Codex reviewers
+A project whose profile says "Codex reviewers: none" has no second-model review. The gate is then the lenses at the depth this protocol sets, finding verification, the stack checks and CI. The two reviewer rows in the receipt read "not applicable per profile", never "green". This gate is weaker for security, identity, deletion and migration changes: say so in the receipt's notes, and let the owner decide whether such a change may merge on it.
