@@ -3,7 +3,7 @@
 The two Codex reviewers are sounding boards and a second opinion. They do not judge. The leader runs every pass, checks each finding in source (through `finding-verifier`) and decides. The rules are in this skill's SKILL.md; this file says how a pass is run. `<runner>` is the path SKILL.md gives. Run it with `--help` when a flag is uncertain, and with `--dry-run` the first time for a new delivery.
 
 ## Before a pass
-1. Freeze the target: worktree, branch and SHA. Nobody changes the worktree while the pass runs; otherwise `content_drift=true` and the pass does not count.
+1. Freeze the target: worktree, branch and SHA. Nobody changes the worktree while the pass runs; otherwise `content_drift=true` and the evidence is invalid. Whether the pass spent budget is in the runner's `pass_history`.
 2. Write the brief to `<work>/codex/<id>-brief.md` and, for a follow-up, the finding table to `<work>/codex/<id>-findings.md`. Never in the repository, never secrets.
 3. Launch from the repository the diff lives in (each repository has its own session scope). Use absolute paths.
 
