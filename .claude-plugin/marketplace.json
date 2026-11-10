@@ -1,0 +1,14 @@
+{
+  "name": "delivery-loop",
+  "description": "A working method for leading multi-delivery software work with builders, reviewers and a durable board.",
+  "owner": {
+    "name": "Delivery loop maintainers"
+  },
+  "plugins": [
+    {
+      "name": "delivery-loop",
+      "source": "./plugins/delivery-loop",
+      "description": "Leader method, review gate, delivery board convention, Codex peer loop, and builder and reviewer subagents."
+    }
+  ]
+}
