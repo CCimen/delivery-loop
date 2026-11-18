@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Run a named/resumable Codex peer-review loop driven by Claude Code.
 
-Claude Code uses this to treat Codex (GPT-6 Astra by default) as a skeptical staff-level
+Claude Code uses this to treat Codex (GPT-6.2 Astra by default) as a skeptical staff-level
 maintainability reviewer: challenge a plan before implementing, get a second
 opinion after finishing a slice, and resume the SAME Codex session after Claude
 applies fixes so Codex can judge whether its prior concerns were addressed.
@@ -24,7 +24,7 @@ a different repository can reuse the name without collision. One session runs
 one pass at a time: a second concurrent launch fails fast instead of tripping
 Codex's "thread already has an active writer" conflict.
 
-Reasoning effort defaults to "auto": the runner picks GPT-6 Astra's effort
+Reasoning effort defaults to "auto": the runner picks GPT-6.2 Astra's effort
 (low..xhigh) from the declared --complexity, then adjusts it for the phase,
 iteration, and skepticism (see resolve_effort) so design and architecture
 passes get more depth than routine follow-ups. Pass --effort to pin it.
@@ -55,7 +55,7 @@ from typing import IO, Callable, Literal, NamedTuple
 from uuid import UUID, uuid4
 
 
-DEFAULT_MODEL_FALLBACK = "gpt-6-astra"
+DEFAULT_MODEL_FALLBACK = "gpt-6.2-astra"
 DEFAULT_EFFORT_FALLBACK = "auto"
 DEFAULT_TIMEOUT_SECONDS_FALLBACK = 3600
 DEFAULT_MODEL = DEFAULT_MODEL_FALLBACK
@@ -81,7 +81,7 @@ STDIN_BRIEF_DEADLINE_SECONDS = 10
 # Drain failures kept per run; one is enough to refuse success.
 MAX_DRAIN_FAILURES = 5
 # "auto" resolves per pass (resolve_effort); the rest are Codex reasoning
-# levels. GPT-6 Astra ships one model with low..ultra effort: "Astra light /
+# levels. GPT-6.2 Astra ships one model with low..ultra effort: "Astra light /
 # medium / high" in conversation means this one model at that effort.
 EFFORT_CHOICES = ("auto", "low", "medium", "high", "xhigh", "max", "ultra")
 # The levels auto may choose; max and ultra stay explicit-only.

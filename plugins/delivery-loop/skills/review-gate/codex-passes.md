@@ -12,7 +12,7 @@ Two calls in the same message, each with the Bash tool's `run_in_background: tru
 
 ```bash
 <runner> \
-  --session <id>-sol --new-session --model gpt-6.1-sol \
+  --session <id>-sol --new-session --model gpt-6.2-sol \
   --title "<id>" --phase <plan|commit-gate> --complexity <critical|complex|routine|trivial> \
   --path <absolute worktree or directory> \
   --context-file <work>/codex/<id>-brief.md \
@@ -20,7 +20,7 @@ Two calls in the same message, each with the Bash tool's `run_in_background: tru
   --extra-instruction "Responsibility, contracts, simplicity and overbuilding. Does the delivery give what the plan promises?" \
   --question "Ready to merge, or small long-term improvements? What blocks green?"
 ```
-- Second reviewer: `--session <id>-astra --model gpt-6-astra` and the mission `"Failure paths, data, security and concurrency. Argue for the strongest alternative."`.
+- Second reviewer: `--session <id>-astra --model gpt-6.2-astra` and the mission `"Failure paths, data, security and concurrency. Argue for the strongest alternative."`.
 - Gate pass: add `--require-green`.
 - Later passes in the same session: drop `--new-session`, change the phase (`commit-gate` after `plan`, then `verification`), and pass the finding table as a context file. The session remembers model, complexity and effort.
 - Repositories that must not receive artifacts: add `--artifact-dir <work>/codex/artifacts/<id>` from the first pass.

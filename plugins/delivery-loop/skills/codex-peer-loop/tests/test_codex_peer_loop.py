@@ -29,7 +29,7 @@ SPEC.loader.exec_module(codex_peer_loop)
 
 class ConfigurationDefaultsTests(unittest.TestCase):
     def test_model_fallback_is_gpt_6_astra(self) -> None:
-        self.assertEqual(codex_peer_loop.DEFAULT_MODEL_FALLBACK, "gpt-6-astra")
+        self.assertEqual(codex_peer_loop.DEFAULT_MODEL_FALLBACK, "gpt-6.2-astra")
 
     def test_defaults_to_gpt_6_astra_at_auto_medium_effort(self) -> None:
         args = codex_peer_loop.parse_args(
@@ -37,7 +37,7 @@ class ConfigurationDefaultsTests(unittest.TestCase):
             environ={},
         )
 
-        self.assertEqual(args.model, "gpt-6-astra")
+        self.assertEqual(args.model, "gpt-6.2-astra")
         self.assertEqual(args.effort_requested, "auto")
         self.assertEqual(args.effort, "medium")
 
@@ -1383,7 +1383,7 @@ class CommandConstructionTests(unittest.TestCase):
     def test_resume_reasserts_model_and_effort(self) -> None:
         arguments = SimpleNamespace(
             codex_bin="/path/to/codex",
-            model="gpt-6-astra",
+            model="gpt-6.2-astra",
             effort="xhigh",
             fast=False,
             disable_mcp=True,
@@ -1395,7 +1395,7 @@ class CommandConstructionTests(unittest.TestCase):
             "019f67c6-f255-7751-9af1-23a141fd729b",
         )
 
-        self.assertIn("gpt-6-astra", command)
+        self.assertIn("gpt-6.2-astra", command)
         self.assertIn("model_reasoning_effort=xhigh", command)
         self.assertIn("mcp_servers={}", command)
 

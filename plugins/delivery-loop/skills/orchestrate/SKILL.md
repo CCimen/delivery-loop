@@ -20,7 +20,7 @@ Defaults; the project profile may change any of them.
 | Lenses, finding verification, contracts, data lifecycle | Opus in subagents | Judgment with file:line evidence. |
 | Mapping, board reconciliation, reading CI logs, running a scripted stack check | Sonnet | Reading and running with a fixed format. |
 | Simple lookups | Haiku | Find a file, list, count. |
-| Second opinion | Codex, for example `gpt-6.1-sol` and `gpt-6-astra` | Independent model, own session. |
+| Second opinion | Codex, for example `gpt-6.2-sol` and `gpt-6.2-astra` | Independent model, own session. |
 
 Effort: `high` is the starting point for builders and reviewers; most of the gain is already there. Use `xhigh` only where a measured gain justifies the tokens, and `max` almost never. Routine leader turns and scripted subagents run lower. Effort changes thinking, time and tool calls, not the length of a reply.
 

@@ -2,6 +2,13 @@
 
 All notable changes to the `delivery-loop` plugin. Versions follow `version` in `plugins/delivery-loop/.claude-plugin/plugin.json`.
 
+## 0.3.1 - 2026-11-18
+
+The reviewers move to the 6.2 models.
+
+- `codex-peer-loop`: the runner's default model is `gpt-6.2-astra` (was `gpt-6-astra`). A session started earlier keeps the model it saved until a pass gives `--model`.
+- `review-gate` and `orchestrate`: the examples name `gpt-6.2-sol` and `gpt-6.2-astra`.
+
 ## 0.3.0 - 2026-11-10
 
 Easier to start with on a new machine and in a new project.

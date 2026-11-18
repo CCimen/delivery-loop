@@ -47,7 +47,7 @@ When the two reviewers contradict each other, decide on evidence, not majority, 
 
 ## 5. Codex passes
 - The leader runs every pass; builders run none. One session per delivery and reviewer: `<id>-sol`, `<id>-astra`. Plan and gate passes share the session, so the reviewer knows the decided design.
-- Same evidence, different missions. First reviewer (default `gpt-6.1-sol`): responsibility, contracts, simplicity, overbuilding, and whether the delivery gives what the plan promises. Second reviewer (default `gpt-6-astra`): failure paths, data, security, concurrency, and the strongest alternative.
+- Same evidence, different missions. First reviewer (default `gpt-6.2-sol`): responsibility, contracts, simplicity, overbuilding, and whether the delivery gives what the plan promises. Second reviewer (default `gpt-6.2-astra`): failure paths, data, security, concurrency, and the strongest alternative.
 - Complexity follows how hard the review is: `critical` for identity, sessions, multi-factor authentication, deletion of retained data, migrations and concurrency; `complex` for contracts between components or repositories; `routine` for ordinary behaviour; `trivial` for docs and mechanical changes. `--effort max` only with a difficulty named in the brief.
 - The Codex brief points to files instead of pasting: the goal and the plan's section, decisions that apply, known and out of scope, validation already run, earlier findings by ID, and the question "Ready to merge, or small long-term improvements?".
 - Codex is a colleague, not an authority. When you disagree, say so with evidence in the same session.

@@ -1,6 +1,6 @@
 ---
 name: codex-peer-loop
-description: Run a skeptical, read-only, resumable Codex (GPT-6 Astra) peer-review loop from Claude Code for non-trivial plans, architecture and agent-rule changes, reliability-sensitive implementation, public contracts, design second opinions, and commit gates. Use whenever repository policy or the user asks for Codex, a "peer loop", a second opinion, a design pass, or a gate before landing; it owns model choice, reasoning effort (low/medium/high/xhigh) driven by the difficulty of the review work, exact session continuity, bounded evidence, receipts, pass budgets, and gate interpretation.
+description: Run a skeptical, read-only, resumable Codex (GPT-6.2 Astra) peer-review loop from Claude Code for non-trivial plans, architecture and agent-rule changes, reliability-sensitive implementation, public contracts, design second opinions, and commit gates. Use whenever repository policy or the user asks for Codex, a "peer loop", a second opinion, a design pass, or a gate before landing; it owns model choice, reasoning effort (low/medium/high/xhigh) driven by the difficulty of the review work, exact session continuity, bounded evidence, receipts, pass budgets, and gate interpretation.
 ---
 
 # Codex Peer Loop
@@ -151,13 +151,13 @@ Keep these out of the default review:
 
 ## Model and effort
 
-- Model: `gpt-6-astra` (override with `--model` or `CODEX_PEER_LOOP_MODEL`).
+- Model: `gpt-6.2-astra` (override with `--model` or `CODEX_PEER_LOOP_MODEL`).
 - Effort: `auto` (override with `--effort` or `CODEX_PEER_LOOP_EFFORT`).
 - Complexity: `routine` (set with `--complexity` or `CODEX_PEER_LOOP_COMPLEXITY`).
 - Timeout: 3600 seconds.
 - Execution: read-only sandbox, user config ignored, MCP disabled by default.
 
-Reviews run on GPT-6 Astra; codex-implement-loop codes on GPT-6.1 Sol by
+Reviews run on GPT-6.2 Astra; codex-implement-loop codes on GPT-6.2 Sol by
 default. Treat that split as a setup to evaluate, not a guarantee of
 independence. Both models can be misled by the same wrong brief, and a
 critical slice may use Astra on both sides. What keeps the review honest is a
