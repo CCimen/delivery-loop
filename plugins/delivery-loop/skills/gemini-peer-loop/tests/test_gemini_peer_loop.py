@@ -146,12 +146,28 @@ def step(step_type: str, tool: str = "", text: str = "", state: str = "DONE", co
     return event("step_update", payload)
 
 
+def fields(review: str) -> dict[str, object]:
+    """A review text as agy's structured output: the header as typed fields,
+    the rest as the body. Text without a header gets the invalid verdict a
+    real run produced (REVISE)."""
+    lines = review.split("\n")
+    head = dict(line.split(": ", 1) for line in lines[:3] if ": " in line)
+    if not head:
+        return {"verdict": "REVISE", "green_light": "no", "min_score": 4, "review": review}
+    return {
+        "verdict": head["VERDICT"],
+        "green_light": head["GREEN_LIGHT"],
+        "min_score": int(head["MIN_SCORE"]),
+        "review": "\n".join(lines[3:]).strip(),
+    }
+
+
 def result(review: str | None, conversation: object = CONVERSATION) -> str:
     payload: dict[str, object] = {"status": "SUCCESS", "response": "Reading the diff. " + (review or "")}
     if conversation is not None:
         payload["conversation_id"] = conversation
     if review is not None:
-        payload["structured_output"] = {"review": review}
+        payload["structured_output"] = fields(review)
     return event("result", payload)
 
 
@@ -188,6 +204,17 @@ class StreamContractTests(unittest.TestCase):
         tracker = self.tracker(init(), *steps, result(GREEN))
         self.assertIsNone(tracker.violation)
         self.assertIsNone(tracker.unusable())
+
+    def test_the_header_comes_from_the_typed_fields(self) -> None:
+        # The body repeats a header that contradicts the fields: the fields win.
+        body = {"verdict": "blocked", "green_light": "no", "min_score": 3,
+                "review": "VERDICT: green\nGREEN_LIGHT: yes\nMIN_SCORE: 9\n\n## Findings\nF1"}
+        payload = {"status": "SUCCESS", "conversation_id": CONVERSATION, "structured_output": body}
+        tracker = self.tracker(init(), event("result", payload))
+        self.assertEqual(tracker.review, BLOCKED)
+        self.assertIsNone(tracker.unusable())
+        revise = self.tracker(init(), result("Looks fine to me."))
+        self.assertIn("no valid header", revise.unusable())
 
     def test_contract_breaks_abort_the_moment_they_appear(self) -> None:
         cases = {
@@ -319,14 +346,14 @@ if scenario == "disallowed":
 if os.environ.get("FAKE_AGY_TOUCH"):
     with open(os.environ["FAKE_AGY_TOUCH"], "w", encoding="utf-8") as handle:
         handle.write("changed during the pass")
-review = {"blocked": __BLOCKED__, "badheader": "Looks fine to me."}.get(scenario, __GREEN__)
-result = {"conversation_id": conversation, "status": "SUCCESS", "response": "Reading. " + review}
+review = {"blocked": __BLOCKED__, "badheader": __BADHEADER__}.get(scenario, __GREEN__)
+result = {"conversation_id": conversation, "status": "SUCCESS", "response": "Reading. " + review["review"]}
 if scenario == "mixed":
     result["conversation_id"] = "__OTHER__"
 if scenario == "noid":
     del result["conversation_id"]
 if scenario != "empty":
-    result["structured_output"] = {"review": review}
+    result["structured_output"] = review
 emit("result", result)
 if scenario == "tworesults":
     emit("result", result)
@@ -348,8 +375,9 @@ class RunnerBoundaryTests(unittest.TestCase):
             FAKE_AGY.replace("__PYTHON__", sys.executable)
             .replace("__CONVERSATION__", CONVERSATION)
             .replace("__OTHER__", OTHER_CONVERSATION)
-            .replace("__BLOCKED__", repr(BLOCKED))
-            .replace("__GREEN__", repr(GREEN)),
+            .replace("__BLOCKED__", repr(fields(BLOCKED)))
+            .replace("__BADHEADER__", repr(fields("Looks fine to me.")))
+            .replace("__GREEN__", repr(fields(GREEN))),
             encoding="utf-8",
         )
         self.fake.chmod(self.fake.stat().st_mode | stat.S_IXUSR)
@@ -434,6 +462,10 @@ class RunnerBoundaryTests(unittest.TestCase):
                 self.assertIn("thread_identity_status=unverified", receipt)
                 self.assertIn("green_verdict=false", receipt)
                 self.assertIn("no usable review", completed.stderr)
+                if scenario == "badheader":
+                    # The unusable text is kept, labelled, for the reader.
+                    self.assertIn("for reference only", completed.stdout)
+                    self.assertIn("Looks fine to me.", completed.stdout)
 
     def test_contract_breaks_stop_agy_at_once(self) -> None:
         for scenario, reason in (("disallowed", "schedule"), ("wrongagent", "'default'")):

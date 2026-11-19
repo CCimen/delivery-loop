@@ -1156,7 +1156,8 @@ Environment:
 - Run each command in the foreground and wait for it; do not start background
   tasks. Do not ask for permissions; nobody can answer. If a tool is denied,
   continue with what you can read.
-- Your final message is the review itself and starts with the header lines.
+- Finish with the header values in verdict, green_light and min_score, and
+  everything after the three header lines in review.
 
 Mission:
 - Start from the real problem; reject symptom patches.
@@ -1245,19 +1246,24 @@ GEMINI_STEP_TYPES = frozenset(
 )
 # toolPermission the runner sets; init reports it back.
 GEMINI_PERMISSION_MODE = "proceed-in-sandbox"
+# The gate header travels as typed fields, so agy holds the model to the
+# allowed values (a free-text header once came back as "VERDICT: REVISE");
+# the runner writes the header lines itself and still parses them.
 GEMINI_REVIEW_SCHEMA = {
     "type": "object",
     "properties": {
+        "verdict": {"type": "string", "enum": ["green", "changes_required", "blocked"]},
+        "green_light": {"type": "string", "enum": ["yes", "no"]},
+        "min_score": {"type": "integer", "minimum": 1, "maximum": 10},
         "review": {
             "type": "string",
             "description": (
-                "The complete review in the required response format; its "
-                "first three lines are the VERDICT, GREEN_LIGHT and MIN_SCORE "
-                "header."
+                "The rest of the review in the required response format, from "
+                "the first section after the three header lines."
             ),
-        }
+        },
     },
-    "required": ["review"],
+    "required": ["verdict", "green_light", "min_score", "review"],
 }
 
 
@@ -1591,11 +1597,27 @@ class ProgressTracker:
         result.response joins every response step, interim chatter included,
         and a background command finishing after the answer adds a further
         step, so no text step is authoritative. --json-schema makes the agent
-        finish with {"review": ...}; without it there is no review.
+        finish with the typed header fields and the body; without them there is
+        no review.
         """
         structured = (self._result or {}).get("structured_output")
-        review = structured.get("review") if isinstance(structured, dict) else None
-        return review.strip() if isinstance(review, str) else ""
+        if not isinstance(structured, dict):
+            return ""
+        body = structured.get("review")
+        if not isinstance(body, str) or not body.strip():
+            return ""
+        body = body.strip()
+        # The typed fields own the header; a header the model repeated in the
+        # body is dropped so the review never carries two.
+        repeated = GATE_HEADER_RE.match(body)
+        if repeated:
+            body = body[repeated.end():].lstrip()
+        header = (
+            f"VERDICT: {structured.get('verdict')}\n"
+            f"GREEN_LIGHT: {structured.get('green_light')}\n"
+            f"MIN_SCORE: {structured.get('min_score')}"
+        )
+        return f"{header}\n\n{body}"
 
     @property
     def error(self) -> str:
@@ -2683,6 +2705,13 @@ def run_pass(
     if not output:
         reason = unusable or tracker.error or f"agy exited {exit_code}"
         output = f"[no review: {reason}]"
+        if tracker.review and not tracker.violation:
+            # A review that failed only its header is still worth reading;
+            # the prefix keeps it from ever parsing as a gate header.
+            output += (
+                "\n\nThe review agy returned, for reference only (not "
+                f"evidence):\n\n{tracker.review}"
+            )
 
     # One final exit code, used for both the receipts and the process return,
     # so .status never disagrees with what the orchestrator's task observed.

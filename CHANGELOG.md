@@ -2,6 +2,10 @@
 
 All notable changes to the `delivery-loop` plugin. Versions follow `version` in `plugins/delivery-loop/.claude-plugin/plugin.json`.
 
+## 0.4.1 - 2026-11-19
+
+- `gemini-peer-loop`: the gate header travels as typed schema fields, so `agy` holds Gemini to the allowed values (a free-text header once came back as `VERDICT: REVISE` and the pass was unusable). The runner writes the header lines and still parses them. A review unusable only because of its header is kept in the artifact for reference, never as evidence.
+
 ## 0.4.0 - 2026-11-19
 
 Gemini can review too.

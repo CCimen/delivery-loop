@@ -93,7 +93,11 @@ Not isolated:
 
 The review is the structured result `agy` returns at the end of the turn
 (`--json-schema`), never the streamed text, which also carries interim
-chatter. Every stream line is checked live against one grammar: first one
+chatter. The schema carries the header as typed fields (`verdict`,
+`green_light`, `min_score`), so `agy` holds Gemini to the allowed values; the
+runner writes the header lines and still parses them. When a review is
+unusable only because of its header, the artifact keeps its text under
+`[no review: …]`, for reference only. Every stream line is checked live against one grammar: first one
 `init` with a canonical conversation id, the runner's agent and
 `proceed-in-sandbox` (on a resume, the stored conversation); then
 `step_update` events of known step types, tool steps only from the
