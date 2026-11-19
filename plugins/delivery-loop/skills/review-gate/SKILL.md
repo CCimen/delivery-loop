@@ -54,9 +54,9 @@ When the two reviewers contradict each other, decide on evidence, not majority, 
 
 ## 6. Usable evidence, a green gate, a spent pass
 Keep these three apart:
-- **Evidence is usable** when the `.status` receipt shows `timed_out=false`, `drain_complete=true`, `thread_identity_status=passed`, `content_drift=false` and `context_truncated=0`. A truncated or omitted context file: raise the caps and rerun.
+- **Evidence is usable** when the `.status` receipt shows `timed_out=false`, `drain_complete=true`, `process_group` `clean` or `terminated` (never `unconfirmed`), `thread_identity_status=passed`, `content_drift=false`, an empty `manifest_error` and `context_truncated=0`. A truncated or omitted context file: raise the caps and rerun.
 - **The gate is green** only with exit 0 under `--require-green`.
-- **A pass is spent** as the runner counts it (`pass_history`): a completed pass that is not green (exit 2) still spends one, and its findings stand.
+- **A pass is spent** as the runner counts it (`pass_history`): it counts once the reviewer completed a valid review in the right conversation (exit 0 or 2), so a pass that is not green, drifted or lost its manifest still spends one, and its findings stand. Counted is not usable: such a pass spends budget without being evidence.
 
 A spent budget ends model review; it never approves. Settle what remains locally (a decisive check, or a fix the leader verifies), but that never replaces both reviewers green on the final SHA: a head neither has reviewed is not merged. Cut it into a smaller delivery with its own sessions, or take it to the owner.
 

@@ -21,13 +21,14 @@ Two calls in the same message, each with the Bash tool's `run_in_background: tru
   --question "Ready to merge, or small long-term improvements? What blocks green?"
 ```
 - Second reviewer: `--session <id>-astra --model gpt-6.2-astra` and the mission `"Failure paths, data, security and concurrency. Argue for the strongest alternative."`.
+- Gemini as an extra reviewer: `${CLAUDE_PLUGIN_ROOT}/skills/gemini-peer-loop/scripts/gemini_peer_loop.py` with the same flags, `--session <id>-gemini` and no `--model` (default `gemini-4-neon`). It fills no required reviewer slot unless the project profile says so.
 - Gate pass: add `--require-green`.
 - Later passes in the same session: drop `--new-session`, change the phase (`commit-gate` after `plan`, then `verification`), and pass the finding table as a context file. The session remembers model, complexity and effort.
 - Repositories that must not receive artifacts: add `--artifact-dir <work>/codex/artifacts/<id>` from the first pass.
 - Add an architecture lens from the `codex-peer-loop` skill's table with another `--extra-instruction` when the pass touches ownership, a system boundary, or concurrency and partial failure.
 
 ## After a pass
-- Usable evidence: the `.status` receipt shows `timed_out=false`, `drain_complete=true`, `thread_identity_status=passed`, `content_drift=false` and `context_truncated=0`. If the startup lines show a truncated or omitted context file: raise the caps and rerun.
+- Usable evidence: the `.status` receipt shows `timed_out=false`, `drain_complete=true`, `process_group` `clean` or `terminated` (never `unconfirmed`), `thread_identity_status=passed`, `content_drift=false`, an empty `manifest_error` and `context_truncated=0`. A pass counts toward the budget once the reviewer completed a valid review in the right conversation (exit 0 or 2), drift or manifest error included; counted is not usable. If the startup lines show a truncated or omitted context file: raise the caps and rerun.
 - The gate is green only with exit 0 under `--require-green`. Exit 2 is a completed pass that is not green: its findings stand and the pass is spent.
 - Every finding goes to `finding-verifier` with the finding ID, the SHA and the delivery's goal. Write the verdicts to `<work>/verdicts/<id>.md` ([verdict table](templates/verdict-table.md)).
 - When the reviewers contradict each other: decide on evidence, not majority, and write the reason.

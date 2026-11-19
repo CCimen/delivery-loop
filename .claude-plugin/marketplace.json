@@ -8,7 +8,7 @@
     {
       "name": "delivery-loop",
       "source": "./plugins/delivery-loop",
-      "description": "Leader method, review gate, delivery board convention, Codex peer loop, and builder and reviewer subagents."
+      "description": "Leader method, review gate, delivery board convention, Codex and Gemini peer loops, and builder and reviewer subagents."
     }
   ]
 }

@@ -2,6 +2,17 @@
 
 All notable changes to the `delivery-loop` plugin. Versions follow `version` in `plugins/delivery-loop/.claude-plugin/plugin.json`.
 
+## 0.4.0 - 2026-11-19
+
+Gemini can review too.
+
+- New skill `gemini-peer-loop`: its own runner drives Gemini through the Antigravity CLI (`agy`, headless stream-json), default model `gemini-4-neon`, with the review contract of `codex-peer-loop`: phases, auto effort (capped at the model's top level), named resumable sessions, budgets, the gate header, the drift check and receipts. An extra reviewer; it fills no required slot unless the project profile says so.
+- Read-only on macOS: `agy` runs from a fresh workspace per pass, and read rules make everything else its sandbox could write read-only (the repository, its git directory, state, artifacts, temp directories and caches). Writes, URLs, unsandboxed commands and MCP are denied, and a runner-written agent allows only view, shell, command status and finish. Other platforms are refused.
+- The review is `agy`'s structured result. Every stream line is checked live against one grammar (one init naming the agent, permission mode and, on a resume, the stored conversation; known steps with allowlisted tools; one result; nothing after it). A break, or a line the runner cannot check, stops `agy` at once; that and a run without a valid review exit 3 and are not counted. Receipts record `agy_version=`.
+- `codex-peer-loop` is unchanged.
+- `review-gate`: usable evidence also needs `process_group` `clean` or `terminated` and an empty `manifest_error`; a counted pass is not necessarily usable.
+- `setup`: the check reports `agy`.
+
 ## 0.3.1 - 2026-11-18
 
 The reviewers move to the 6.2 models.

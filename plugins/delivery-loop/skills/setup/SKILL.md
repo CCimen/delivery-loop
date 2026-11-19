@@ -19,6 +19,7 @@ The script only reads: tool versions and the current project. Report its lines a
 |---|---|---|
 | `br` (beads_rust) | `orchestrate`, `review-gate`, `codex-peer-loop`, all agents | `delivery-board`. Until `br` is installed there is no board, so say plainly that the queue lives in the status file for now. |
 | Codex CLI, or not signed in | Lenses, finding verification, the receipt | The two-model review. Set "Codex reviewers: none" in the profile; the gate is then weaker, and the receipt says so. |
+| Antigravity CLI (`agy`), or not signed in, or not macOS | Everything | The extra Gemini reviewer (`gemini-peer-loop`). |
 | Python 3.9+ | Everything except the Codex runner | `codex-peer-loop` passes. |
 | `gh` or another forge CLI | Everything local | Reading PR and CI state; the leader then asks the user for it. |
 

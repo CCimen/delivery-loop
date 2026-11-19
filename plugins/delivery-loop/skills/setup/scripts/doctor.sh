@@ -29,6 +29,12 @@ else
   miss codex "no second-model review: the gate then runs lenses and finding verification only"
 fi
 
+if command -v agy >/dev/null 2>&1; then
+  ok agy "$(agy --version 2>/dev/null | head -1) (optional, gemini-peer-loop; sign-in not checked)"
+else
+  miss agy "optional: the extra Gemini reviewer (gemini-peer-loop)"
+fi
+
 if command -v gh >/dev/null 2>&1; then ok gh "optional, for PR and CI state on GitHub"; else miss gh "optional: PR and CI state on GitHub"; fi
 
 if root="$(git rev-parse --show-toplevel 2>/dev/null)"; then

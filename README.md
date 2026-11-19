@@ -12,6 +12,7 @@ This repository is a plugin marketplace named `delivery-loop` with one plugin, a
 | `/delivery-loop:review-gate` | Review depth by risk, finding verdicts, scope guard, stop rules, Codex pass rules, re-validation after every commit. Includes the brief, gate receipt, decision record and verdict table templates. |
 | `/delivery-loop:delivery-board` | The board convention on `br`: one item per delivery, labels, the work card, status rules, session start. |
 | `/delivery-loop:codex-peer-loop` | Run a read-only, resumable Codex review pass and interpret its receipt. |
+| `/delivery-loop:gemini-peer-loop` | The same review loop on Gemini through the Antigravity CLI (`agy`), read-only in agy's sandbox. An extra reviewer. |
 | `/delivery-loop:setup` | Check the tools on this machine and add the project profile to a project. Runs only when you ask for it. |
 
 | Agent | Use it for |
@@ -40,6 +41,7 @@ Only Claude Code and `git` are required. Everything else adds a part of the meth
 | Claude Code with plugin support, `git` | Everything | – |
 | `br` (beads_rust) on `PATH` | The board (`delivery-board`) | The other skills work; the queue lives in the status file until `br` is installed. |
 | Codex CLI, signed in | The second-model review (`codex-peer-loop`, the gate's two reviewers) | Set "Codex reviewers: none" in the profile. The gate is then lenses and finding verification only, and the receipt says so. |
+| Antigravity CLI (`agy`), signed in, on macOS | Gemini as an extra reviewer (`gemini-peer-loop`) | No Gemini passes. |
 | Python 3.9 or later | The Codex runner | No Codex passes. |
 | A forge CLI such as `gh` | Reading PR and CI state | The leader asks you for it. |
 | The `/advisor` feature | A stronger model at decision points | The method works without it. |
@@ -91,11 +93,13 @@ By hand: copy the profile block from `plugins/delivery-loop/skills/orchestrate/p
 ## Where the Codex runner is
 The runner ships at `plugins/delivery-loop/skills/codex-peer-loop/scripts/codex_peer_loop.py`. The `codex-peer-loop` skill refers to it as `${CLAUDE_SKILL_DIR}/scripts/codex_peer_loop.py`, and the `review-gate` skill as `${CLAUDE_PLUGIN_ROOT}/skills/codex-peer-loop/scripts/codex_peer_loop.py`. Claude Code replaces both with the absolute path of the installed copy when the skill loads, so nothing depends on `~/.claude/skills`. To run it by hand, use the path in your clone. Session state lives in `~/.cache/codex-peer-loop/`, outside the plugin, so it survives plugin updates.
 
+The Gemini runner is its own script, `plugins/delivery-loop/skills/gemini-peer-loop/scripts/gemini_peer_loop.py`, with state in `~/.cache/gemini-peer-loop/`.
+
 ## Release a new version
 1. Change the plugin.
 2. Bump `version` in `plugins/delivery-loop/.claude-plugin/plugin.json`. Keep it out of `marketplace.json`, where a second value would conflict.
 3. Add an entry to `CHANGELOG.md`.
-4. Check: `claude plugin validate .` and, in `plugins/delivery-loop/skills/codex-peer-loop`, `python3 -m unittest discover -s tests`.
+4. Check: `claude plugin validate .` and, in `plugins/delivery-loop/skills/codex-peer-loop` and `plugins/delivery-loop/skills/gemini-peer-loop`, `python3 -m unittest discover -s tests`.
 5. Commit, then tag: `claude plugin tag plugins/delivery-loop` creates `delivery-loop--v<version>` after checking that the manifests agree (`--push` pushes the tag). Push the commit.
 
 Installed copies from a git-hosted marketplace stay on their version until the `version` string changes. They update when the user runs `claude plugin update delivery-loop@delivery-loop` (shell) or `/plugin marketplace update delivery-loop` (session), or automatically if they turn on **Enable auto-update** for the marketplace under **Marketplaces** in `/plugin` (off by default for marketplaces like this one). A running session keeps the version it loaded until `/reload-plugins` or the next session.
